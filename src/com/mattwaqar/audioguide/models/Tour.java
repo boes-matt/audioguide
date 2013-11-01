@@ -1,4 +1,4 @@
-package com.mattwaqar.audioguide.model;
+package com.mattwaqar.audioguide.models;
 
 import java.util.List;
 
