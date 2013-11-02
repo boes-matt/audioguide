@@ -23,13 +23,18 @@ public class MainActivity extends FragmentActivity {
 		ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setDisplayShowTitleEnabled(true);
-		
-		Tab tabDiscover = actionBar.newTab().setText("Discover").setTag("DiscoverFragment");
-		tabDiscover.setTabListener(new FragmentTabListener<DiscoverFragment>(R.id.fragmentContainer, this, (String) tabDiscover.getTag(), DiscoverFragment.class));
-		
+
+		Tab tabDiscover = actionBar.newTab().setText("Discover")
+				.setTag("DiscoverFragment");
+		tabDiscover.setTabListener(new FragmentTabListener<DiscoverFragment>(
+				R.id.fragmentContainer, this, (String) tabDiscover.getTag(),
+				DiscoverFragment.class));
+
 		Tab tabMake = actionBar.newTab().setText("Make").setTag("MakeFragment");
-		tabMake.setTabListener(new FragmentTabListener<MakeFragment>(R.id.fragmentContainer, this, (String) tabMake.getTag(), MakeFragment.class));
-		
+		tabMake.setTabListener(new FragmentTabListener<MakeFragment>(
+				R.id.fragmentContainer, this, (String) tabMake.getTag(),
+				MakeFragment.class));
+
 		actionBar.addTab(tabDiscover);
 		actionBar.addTab(tabMake);
 		actionBar.selectTab(tabMake);
