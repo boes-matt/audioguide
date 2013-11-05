@@ -5,7 +5,8 @@
         android:orderInCategory="100"
         android:showAsAction="ifRoom|withText"
         android:title="@string/action_record"
-        android:icon="@drawable/ic_action_record" />
+        android:icon="@drawable/ic_action_record"
+        android:onClick="onRecord" />
         
     <item
         android:id="@+id/action_settings"

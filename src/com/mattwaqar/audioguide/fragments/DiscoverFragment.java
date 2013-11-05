@@ -67,7 +67,7 @@ public class DiscoverFragment extends SupportMapFragment implements
 
 	@Override
 	public void onStart() {
-		super.onStart();
+		super.onStart();	
 		mLocationClient.connect();
 	}
 
@@ -80,13 +80,23 @@ public class DiscoverFragment extends SupportMapFragment implements
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+
+		/*
+		 * TODO: Fix with better solution than current null checking. 
+		 * onCreatView called twice: when activity loads and when tab is selected.  Why?
+		 * This causes mMarkerTracks to be reset with new markers, resulting in
+		 * out-of-sync click handlers for markers and null pointers.
+		 */
+
 		View v = super.onCreateView(inflater, container, savedInstanceState);
 
 		mGoogleMap = getMap();
 		mGoogleMap.setMyLocationEnabled(true);
-		addTracksToMap(mTracks);
-		setupOnClickHandlers();
-
+		if (mMarkerTracks == null) {
+			addTracksToMap(mTracks);
+			setupOnClickHandlers();			
+		}
+		
 		return v;
 	}
 
@@ -99,6 +109,8 @@ public class DiscoverFragment extends SupportMapFragment implements
 					.snippet(track.getDescription()));
 			mMarkerTracks.put(marker.getId(), track);
 		}
+		
+		Log.d(TAG, "mMarkerTracks created: " + mMarkerTracks);
 	}
 
 	private void setupOnClickHandlers() {
@@ -115,12 +127,14 @@ public class DiscoverFragment extends SupportMapFragment implements
 
 			@Override
 			public void onInfoWindowClick(Marker marker) {
+				Log.d(TAG, "Marker ID tapped: " + marker.getId());
+				Log.d(TAG, "mMarkerTracks: " + mMarkerTracks);
+								
 				stopAudio();
 				Track track = mMarkerTracks.get(marker.getId());
 				if (track != null) {
 					playAudio(track);
 				} else {
-					// TODO Why is track null so often on lookup in hashmap?!?
 					Log.e(TAG, "Track is null for marker");
 				}
 			}

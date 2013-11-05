@@ -13,11 +13,7 @@ public class Track {
 	private String author;
 	private int audioResource;
 	private LatLng latLng;
-	
-	public Track() {
-		super();
-	}
-	
+		
 	public Track(String title, String description, String author, int audioResource, LatLng latLng) {
 		this.title = title;
 		this.description = description;
@@ -70,5 +66,5 @@ public class Track {
 	public String toString() {
 		return title;
 	}
-	
+
 }

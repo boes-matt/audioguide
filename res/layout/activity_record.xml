@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp" >
+
+    <EditText
+        android:id="@+id/etTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:hint="@string/title" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/etDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/etTitle"
+        android:layout_marginTop="10dp"
+        android:hint="@string/description" />
+
+    <MediaController
+        android:id="@+id/mcRecordPlay"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/etDescription"
+        android:layout_marginTop="10dp" >
+    </MediaController>
+    
+    <com.google.android.gms.maps.MapView 
+        android:id="@+id/mvMap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/mcRecordPlay"
+        android:layout_marginTop="10dp" />
+
+</RelativeLayout>
