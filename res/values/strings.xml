@@ -3,10 +3,18 @@
 
     <string name="app_name">Audio Guide</string>
     <string name="action_settings">Settings</string>
+    
     <string name="action_record">Record</string>
+    <string name="action_play">Play</string>
+    <string name="action_stop">Stop</string>
+    <string name="action_delete">Delete</string>
+    
     <string name="title">Title</string>
     <string name="description">Short description</string>
-    <string name="title_activity_record">RecordActivity</string>
+    <string name="title_activity_record">Record Track</string>
     <string name="hello_world">Hello world!</string>
+    
+    <string name="recording">Tell us a story</string>
+    <string name="done_recording">Done</string>
 
 </resources>

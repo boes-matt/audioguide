@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp" >
-
+    android:padding="10dp"
+    tools:context=".RecordActivity" >
+    
+    
     <EditText
         android:id="@+id/etTitle"
         android:layout_width="match_parent"
@@ -24,17 +28,18 @@
         android:layout_marginTop="10dp"
         android:hint="@string/description" />
 
-    <MediaController
+    <fragment
         android:id="@+id/mcRecordPlay"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/etDescription"
-        android:layout_marginTop="10dp" >
-    </MediaController>
+        android:layout_marginTop="10dp"
+        class="com.mattwaqar.audioguide.fragments.MediaFragment"
+        tools:layout="@layout/fragment_media" />
     
-    <com.google.android.gms.maps.MapView 
-        android:id="@+id/mvMap"
+    <fragment class="com.mattwaqar.audioguide.fragments.SetLocationFragment"
+        android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"

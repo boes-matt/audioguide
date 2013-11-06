@@ -61,7 +61,7 @@ public class MainActivity extends FragmentActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK) {
 			if (requestCode == REQUEST_RECORD) {
-				// TODO do something
+				// TODO Get new track if not null.  Add to mTracks and marker to map.
 			}
 		}
 	}
