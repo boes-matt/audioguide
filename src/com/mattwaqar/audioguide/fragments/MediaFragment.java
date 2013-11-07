@@ -54,7 +54,7 @@ public class MediaFragment extends Fragment implements OnClickListener {
 			listener = (MediaListener) activity;
 		} else {
 			throw new ClassCastException(activity.toString() + " must implement MediaListener");
-		}
+		}		
 	}
 	
 	private void showRecord() {

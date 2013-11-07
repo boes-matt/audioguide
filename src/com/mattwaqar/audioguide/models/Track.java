@@ -1,6 +1,9 @@
 package com.mattwaqar.audioguide.models;
 
+import android.net.Uri;
+
 import com.google.android.gms.maps.model.LatLng;
+import com.mattwaqar.audioguide.R;
 
 public class Track {
 
@@ -11,7 +14,10 @@ public class Track {
 	private String title;
 	private String description;
 	private String author;
+	
 	private int audioResource;
+	private String audioPath;
+	
 	private LatLng latLng;
 		
 	public Track(String title, String description, String author, int audioResource, LatLng latLng) {
@@ -22,6 +28,19 @@ public class Track {
 		this.latLng = latLng;
 	}
 
+	public Track(String title, String description, String author, String audioPath, LatLng latLng) {
+		this.title = title;
+		this.description = description;
+		this.author = author;
+		this.audioPath = audioPath;
+		this.latLng = latLng;
+	}	
+	
+	public String getPathFromResource(int resource) {
+		// TODO: Works??
+		return Uri.parse("android.resource://" + "com.mattwaqar.audioguide/" + resource).toString();
+	}
+	
 	public String getTitle() {
 		return title;
 	}
@@ -50,10 +69,18 @@ public class Track {
 		return audioResource;
 	}
 
-	public void setAudioResource(int audioResource) {
-		this.audioResource = audioResource;
+	public void setAudioPath(String audioPath) {
+		this.audioPath = audioPath;
 	}
 
+	public String getAudioPath() {
+		return audioPath;
+	}
+
+	public void setAudioResource(int audioResource) {
+		this.audioResource = audioResource;
+	}	
+	
 	public LatLng getLatLng() {
 		return latLng;
 	}

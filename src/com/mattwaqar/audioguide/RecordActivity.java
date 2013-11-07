@@ -16,6 +16,7 @@ import android.widget.EditText;
 import com.google.android.gms.maps.model.LatLng;
 import com.mattwaqar.audioguide.fragments.MediaFragment;
 import com.mattwaqar.audioguide.fragments.MediaListener;
+import com.mattwaqar.audioguide.fragments.SetLocationFragment;
 import com.mattwaqar.audioguide.models.Track;
 
 public class RecordActivity extends FragmentActivity implements MediaListener {
@@ -28,7 +29,7 @@ public class RecordActivity extends FragmentActivity implements MediaListener {
 	private LatLng mLatLng;
 	
 	private MediaPlayer mPlayer;
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -49,14 +50,17 @@ public class RecordActivity extends FragmentActivity implements MediaListener {
 	public void onBackPressed() {
 		String title = etTitle.getText().toString();
 		String description = etDescription.getText().toString();
-		String author = "";
+		String author = "Matt Waqar";
 
-		// TODO: Fix theses
-		int audioResource = 0;
-		LatLng latLng = null;
+		SetLocationFragment fragment = (SetLocationFragment) getSupportFragmentManager().findFragmentById(R.id.mapView);
+		mLatLng = fragment.getTrackLatLng();
 		
-		// TODO: Make Track Serializable
-		Track track = new Track(title, description, author, audioResource, latLng);
+		// TODO: Make Track Serializable or pass around Track UUID
+		Track track = new Track(title, description, author, 0, mLatLng);
+		
+		// TODO: Fix Track constructor to accept String path
+		// Track track = new Track(title, description, author, mTrackPath, mLatLng);
+		
 		Intent i = new Intent();
 		// i.putExtra("", track);
 		setResult(Activity.RESULT_OK, i);
