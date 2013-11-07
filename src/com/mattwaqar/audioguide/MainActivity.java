@@ -5,7 +5,6 @@ import android.app.ActionBar.Tab;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,9 +12,10 @@ import android.view.MenuItem;
 import com.mattwaqar.audioguide.fragments.DiscoverFragment;
 import com.mattwaqar.audioguide.fragments.FragmentTabListener;
 import com.mattwaqar.audioguide.fragments.MakeFragment;
+import com.mattwaqar.audioguide.fragments.MakeFragment.OnMakeSelectedListener;
 import com.mattwaqar.audioguide.models.Track;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements OnMakeSelectedListener {
 
 	private static final int REQUEST_RECORD = 0;
 
@@ -70,5 +70,10 @@ public class MainActivity extends FragmentActivity {
 			}
 		}
 	}
-	
+
+	@Override
+	public void onTrackSelected(Track track) {
+		Intent i = new Intent(getApplicationContext(), RecordActivity.class);
+		startActivityForResult(i, 1);
+	}
 }

@@ -42,7 +42,7 @@
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyAD_A0CYVRanYarQ53jLjtB74GOUR8tXCY" />
+            android:value="AIzaSyBBSLeuvYSn3rAy6wlovA5aR5WNoRj_l0c" />
 
         <activity
             android:name="com.mattwaqar.audioguide.RecordActivity"
