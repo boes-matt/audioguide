@@ -21,6 +21,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -104,11 +106,13 @@ public class DiscoverFragment extends SupportMapFragment implements
 
 	private void addTracksToMap(ArrayList<Track> tracks) {
 		mMarkerTracks = new HashMap<String, Track>();
-
+		BitmapDescriptor bd = BitmapDescriptorFactory.fromResource(R.drawable.ic_listen_track);
+		
 		for (Track track : tracks) {
 			Marker marker = mGoogleMap.addMarker(new MarkerOptions()
 					.position(track.getLatLng()).title(track.getTitle())
-					.snippet(track.getDescription()));
+					.snippet(track.getDescription())
+					.icon(bd));
 			mMarkerTracks.put(marker.getId(), track);
 		}
 		

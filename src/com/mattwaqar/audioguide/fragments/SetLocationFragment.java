@@ -72,7 +72,9 @@ public class SetLocationFragment extends SupportMapFragment implements
 	}
 	
 	public LatLng getTrackLatLng() {
-		return new LatLng(mTrackLocation.getLatitude(), mTrackLocation.getLongitude());
+		//return new LatLng(mTrackLocation.getLatitude(), mTrackLocation.getLongitude());
+		LatLng center = mGoogleMap.getCameraPosition().target;
+		return center;
 	}
 	
 }

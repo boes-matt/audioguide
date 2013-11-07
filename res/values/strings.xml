@@ -16,5 +16,7 @@
     
     <string name="recording">Tell us a story</string>
     <string name="done_recording">Done</string>
+    
+    <string name="track_location">Track location</string>
 
 </resources>

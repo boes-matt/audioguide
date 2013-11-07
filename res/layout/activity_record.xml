@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp"
     tools:context=".RecordActivity" >
-    
-    
+
     <EditText
         android:id="@+id/etTitle"
         android:layout_width="match_parent"
@@ -37,13 +35,31 @@
         android:layout_marginTop="10dp"
         class="com.mattwaqar.audioguide.fragments.MediaFragment"
         tools:layout="@layout/fragment_media" />
-    
-    <fragment class="com.mattwaqar.audioguide.fragments.SetLocationFragment"
-        android:id="@+id/mapView"
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/mcRecordPlay"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp" >
+
+        <fragment
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            class="com.mattwaqar.audioguide.fragments.SetLocationFragment" />
+
+        <ImageView
+            android:id="@+id/ivTrackPin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_pin_track"
+            android:contentDescription="@string/track_location" />
+                    
+    </RelativeLayout>
 
 </RelativeLayout>
