@@ -5,6 +5,7 @@ import android.app.ActionBar.Tab;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +13,7 @@ import android.view.MenuItem;
 import com.mattwaqar.audioguide.fragments.DiscoverFragment;
 import com.mattwaqar.audioguide.fragments.FragmentTabListener;
 import com.mattwaqar.audioguide.fragments.MakeFragment;
+import com.mattwaqar.audioguide.models.Track;
 
 public class MainActivity extends FragmentActivity {
 
@@ -62,6 +64,9 @@ public class MainActivity extends FragmentActivity {
 		if (resultCode == Activity.RESULT_OK) {
 			if (requestCode == REQUEST_RECORD) {
 				// TODO Get new track if not null.  Add to mTracks and marker to map.
+				Track track = (Track) data.getSerializableExtra("Track");
+				DiscoverFragment fragment = (DiscoverFragment) getSupportFragmentManager().findFragmentByTag("DiscoverFragment");
+				fragment.addTrack(track);
 			}
 		}
 	}

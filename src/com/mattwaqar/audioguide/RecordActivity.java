@@ -55,14 +55,9 @@ public class RecordActivity extends FragmentActivity implements MediaListener {
 		SetLocationFragment fragment = (SetLocationFragment) getSupportFragmentManager().findFragmentById(R.id.mapView);
 		mLatLng = fragment.getTrackLatLng();
 		
-		// TODO: Make Track Serializable or pass around Track UUID
-		Track track = new Track(title, description, author, 0, mLatLng);
-		
-		// TODO: Fix Track constructor to accept String path
-		// Track track = new Track(title, description, author, mTrackPath, mLatLng);
-		
+		Track track = new Track(title, description, author, mTrackPath, mLatLng);
 		Intent i = new Intent();
-		// i.putExtra("", track);
+		i.putExtra("Track", track);
 		setResult(Activity.RESULT_OK, i);
 		
 		super.onBackPressed();

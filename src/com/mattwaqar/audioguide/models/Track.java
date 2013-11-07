@@ -1,11 +1,10 @@
 package com.mattwaqar.audioguide.models;
 
-import android.net.Uri;
+import java.io.Serializable;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.mattwaqar.audioguide.R;
 
-public class Track {
+public class Track implements Serializable {
 
 	/*
 	 * A track is an audio track, location, and meta-data.
@@ -18,14 +17,18 @@ public class Track {
 	private int audioResource;
 	private String audioPath;
 	
-	private LatLng latLng;
+	//private LatLng latLng;
+	private double lat;
+	private double lng;
 		
 	public Track(String title, String description, String author, int audioResource, LatLng latLng) {
 		this.title = title;
 		this.description = description;
 		this.author = author;
 		this.audioResource = audioResource;
-		this.latLng = latLng;
+		//this.latLng = latLng;
+		this.lat = latLng.latitude;
+		this.lng = latLng.longitude;
 	}
 
 	public Track(String title, String description, String author, String audioPath, LatLng latLng) {
@@ -33,13 +36,17 @@ public class Track {
 		this.description = description;
 		this.author = author;
 		this.audioPath = audioPath;
-		this.latLng = latLng;
+		//this.latLng = latLng;
+		this.lat = latLng.latitude;
+		this.lng = latLng.longitude;
 	}	
 	
-	public String getPathFromResource(int resource) {
-		// TODO: Works??
+	/*
+	public static String getPathFromResource(int resource) {
+		// TODO: Does not work
 		return Uri.parse("android.resource://" + "com.mattwaqar.audioguide/" + resource).toString();
 	}
+	*/
 	
 	public String getTitle() {
 		return title;
@@ -82,11 +89,14 @@ public class Track {
 	}	
 	
 	public LatLng getLatLng() {
-		return latLng;
+		//return latLng;
+		return new LatLng(lat, lng);
 	}
 
 	public void setLatLng(LatLng latLng) {
-		this.latLng = latLng;
+		//this.latLng = latLng;
+		lat = latLng.latitude;
+		lng = latLng.longitude;
 	}
 	
 	@Override

@@ -1,10 +1,12 @@
 package com.mattwaqar.audioguide.fragments;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.location.Location;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,7 +50,7 @@ public class DiscoverFragment extends SupportMapFragment implements
 	private void setupMockTracks() {
 		Track barberShop = new Track("Barber shop", "Singing barbers",
 				"Matt Boes", R.raw.sf_barber_shop,
-				new LatLng(37.7749, -122.419));
+				new LatLng(37.7749, -122.419));		
 		Track bayShore = new Track("Dock of the Bay", "Sitting on bay shore",
 				"Matt Boes", R.raw.sf_bayshore, new LatLng(37.7549, -122.390));
 		Track pacmanArcade = new Track("Pacman Arcade",
@@ -143,7 +145,26 @@ public class DiscoverFragment extends SupportMapFragment implements
 	}
 
 	private void playAudio(Track track) {
-		if (mPlayer == null) {
+		if (track.getAudioPath() != null && mPlayer == null) {
+			// Play from filepath
+			mPlayer = new MediaPlayer();
+			try {
+				mPlayer.setDataSource(track.getAudioPath());
+				mPlayer.setOnCompletionListener(new OnCompletionListener() {
+					
+					@Override
+					public void onCompletion(MediaPlayer mp) {
+						stopAudio();
+					}
+				});
+				
+				mPlayer.prepare();
+			} catch (IOException e) {
+				Log.e(TAG, "prepare() failed", e);
+			}
+			
+		} else if (mPlayer == null) {
+			// Play from resource
 			mPlayer = MediaPlayer.create(getActivity(), track.getAudioResource());
 			mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
@@ -154,6 +175,7 @@ public class DiscoverFragment extends SupportMapFragment implements
 
 			});
 		}
+		
 		mPlayer.start();
 	}
 
@@ -189,6 +211,12 @@ public class DiscoverFragment extends SupportMapFragment implements
 	public void onDisconnected() {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void addTrack(Track track) {
+		mTracks.add(track);
+		addTracksToMap(mTracks);
+		setupOnClickHandlers();		
 	}
 
 }
