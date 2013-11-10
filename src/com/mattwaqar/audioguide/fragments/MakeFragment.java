@@ -16,6 +16,8 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
 import com.mattwaqar.audioguide.R;
+import com.mattwaqar.audioguide.RemoteDataTask;
+import com.mattwaqar.audioguide.RemoteDataTask.OnQueryListener;
 import com.mattwaqar.audioguide.TrackArrayAdapter;
 import com.mattwaqar.audioguide.models.Track;
 import com.parse.FindCallback;
@@ -24,7 +26,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseQuery.CachePolicy;
 
-public class MakeFragment extends Fragment {
+public class MakeFragment extends Fragment implements OnQueryListener {
 	
 	
 	private static final String TAG = "MakeFragment";
@@ -35,8 +37,10 @@ public class MakeFragment extends Fragment {
 
 	public interface OnMakeSelectedListener {
 		public void onTrackSelected(Track track);
+		public void showProgressDialog();
+		public void dismissProgressDialog();
 	}
-
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_make, container, false);
@@ -57,7 +61,7 @@ public class MakeFragment extends Fragment {
 		
 		lvTracks.setOnItemLongClickListener(new OnItemLongClickListener() {
 
-			@Override
+		new RemoteDataTask("Track", this).execute();
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 				Track track = mAdapter.getItem(position);
 				track.remove(Track.AUDIO);
@@ -106,4 +110,18 @@ public class MakeFragment extends Fragment {
             throw new ClassCastException(activity.toString() + " must implement MakeFragment.OnMakeSelectedListener");
         }
    }
+	
+	@Override
+	public void onQueryStarted() {
+		_makeListener.showProgressDialog();
+	}
+
+	@Override
+	public void onQueryDidFinish(List<ParseObject> items) {
+		for (ParseObject item : items) {
+			Track track = new Track(item);
+			_adapter.add(track);
+		}
+		_makeListener.dismissProgressDialog();
+	}
 }
