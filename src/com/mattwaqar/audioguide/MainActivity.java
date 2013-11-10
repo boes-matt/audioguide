@@ -1,29 +1,54 @@
 package com.mattwaqar.audioguide;
 
+import java.util.List;
+
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.mattwaqar.audioguide.RemoteDataTask.OnQueryListener;
 import com.mattwaqar.audioguide.fragments.DiscoverFragment;
 import com.mattwaqar.audioguide.fragments.FragmentTabListener;
 import com.mattwaqar.audioguide.fragments.MakeFragment;
 import com.mattwaqar.audioguide.fragments.MakeFragment.OnMakeSelectedListener;
 import com.mattwaqar.audioguide.models.Track;
+import com.parse.Parse;
+import com.parse.ParseACL;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
 
-public class MainActivity extends FragmentActivity implements OnMakeSelectedListener {
+public class MainActivity extends FragmentActivity implements OnMakeSelectedListener, OnQueryListener {
 
 	private static final int REQUEST_RECORD = 0;
+	private static final String PARSE_APPLICATION_ID = "GeABHxKxllglwH260hFTa6Mn9eqfZjf25Zae0t6I";
+	private static final String PARSE_CLIENT_KEY = "79jBz0LksN6Gh1Q6dnr3HZKqpPTnuXRQJ7KWYc87";
+	private Dialog _progressDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		setupNavigationTabs();
+		
+		setupParse();
+	}
+
+	private void setupParse() {
+		Parse.initialize(this, PARSE_APPLICATION_ID, PARSE_CLIENT_KEY);
+		ParseUser.enableAutomaticUser();
+		ParseACL defaultACL = new ParseACL();
+		// Optionally enable public read access.
+		defaultACL.setPublicReadAccess(true);
+		ParseACL.setDefaultACL(defaultACL, true);
 	}
 
 	private void setupNavigationTabs() {
@@ -63,7 +88,6 @@ public class MainActivity extends FragmentActivity implements OnMakeSelectedList
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK) {
 			if (requestCode == REQUEST_RECORD) {
-				// TODO Get new track if not null.  Add to mTracks and marker to map.
 				Track track = (Track) data.getSerializableExtra("Track");
 				DiscoverFragment fragment = (DiscoverFragment) getSupportFragmentManager().findFragmentByTag("DiscoverFragment");
 				fragment.addTrack(track);
@@ -75,5 +99,51 @@ public class MainActivity extends FragmentActivity implements OnMakeSelectedList
 	public void onTrackSelected(Track track) {
 		Intent i = new Intent(getApplicationContext(), RecordActivity.class);
 		startActivityForResult(i, 1);
+	}
+
+	@Override
+	public void showProgressDialog() {
+		_progressDialog = ProgressDialog.show(this, "", "Loading...", true);
+	}
+
+	@Override
+	public void dismissProgressDialog() {
+		_progressDialog.dismiss();
+	}
+
+	@Override
+	public void onQueryStarted() {
+	}
+
+	@Override
+	public void onQueryDidFinish(List<ParseObject> items) {
+	}
+	
+	@SuppressWarnings("unused")
+	private void addSampleTracks () {
+		new RemoteDataTask(Track.CLASS_NAME, this) {
+			protected Void doInBackground(Void... params) {
+				Track barberShop = new Track("Barber shop", "Singing barbers",
+						"Matt Boes", R.raw.sf_barber_shop,
+						new LatLng(37.7749, -122.419));
+				Track bayShore = new Track("Dock of the Bay", "Sitting on bay shore",
+						"Matt Boes", R.raw.sf_bayshore, new LatLng(37.7549, -122.390));
+				Track pacmanArcade = new Track("Pacman Arcade",
+						"Along the Embarcadero", "Waqar Malik", R.raw.sf_pacman_arcade,
+						new LatLng(37.7949, -122.400));
+				Track queenMary = new Track("Queen Mary Ferry", "All aboard!",
+						"Waqar Malik", R.raw.sf_queen_mary, new LatLng(37.8049,
+								-122.419));
+				try {
+					barberShop.getParseObject().save();
+					bayShore.getParseObject().save();
+					pacmanArcade.getParseObject().save();
+					queenMary.getParseObject().save();
+				} catch (ParseException e) {
+				}
+				super.doInBackground();
+				return null;
+			}
+		}.execute();
 	}
 }
