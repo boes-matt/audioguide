@@ -16,13 +16,16 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
 import com.mattwaqar.audioguide.R;
+import com.mattwaqar.audioguide.RemoteDataTask;
+import com.mattwaqar.audioguide.RemoteDataTask.OnQueryListener;
 import com.mattwaqar.audioguide.TrackArrayAdapter;
 import com.mattwaqar.audioguide.client.Client;
 import com.mattwaqar.audioguide.client.ItemsCallback;
 import com.mattwaqar.audioguide.client.ParseClient;
 import com.mattwaqar.audioguide.models.Track;
+import com.parse.ParseObject;
 
-public class MakeFragment extends Fragment {
+public class MakeFragment extends Fragment implements OnQueryListener {
 	
 	private static final String TAG = "MakeFragment";
 	
@@ -33,6 +36,8 @@ public class MakeFragment extends Fragment {
 
 	public interface OnMakeSelectedListener {
 		public void onTrackSelected(Track track);
+		public void showProgressDialog();
+		public void dismissProgressDialog();
 	}
 	
 	@Override
@@ -61,7 +66,7 @@ public class MakeFragment extends Fragment {
 		
 		lvTracks.setOnItemLongClickListener(new OnItemLongClickListener() {
 
-			@Override
+		new RemoteDataTask("Track", this).execute();
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 				Track track = mAdapter.getItem(position);
 				track.deleteInBackground();
@@ -106,4 +111,18 @@ public class MakeFragment extends Fragment {
             throw new ClassCastException(activity.toString() + " must implement MakeFragment.OnMakeSelectedListener");
         }
    }
+	
+	@Override
+	public void onQueryStarted() {
+		_makeListener.showProgressDialog();
+	}
+
+	@Override
+	public void onQueryDidFinish(List<ParseObject> items) {
+		for (ParseObject item : items) {
+			Track track = new Track(item);
+			_adapter.add(track);
+		}
+		_makeListener.dismissProgressDialog();
+	}
 }
