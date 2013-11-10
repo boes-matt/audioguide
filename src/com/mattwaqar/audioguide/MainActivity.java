@@ -27,7 +27,6 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 public class MainActivity extends FragmentActivity implements OnMakeSelectedListener, OnQueryListener {
-
 	private static final int REQUEST_RECORD = 0;
 	private static final String PARSE_APPLICATION_ID = "GeABHxKxllglwH260hFTa6Mn9eqfZjf25Zae0t6I";
 	private static final String PARSE_CLIENT_KEY = "79jBz0LksN6Gh1Q6dnr3HZKqpPTnuXRQJ7KWYc87";
@@ -38,7 +37,6 @@ public class MainActivity extends FragmentActivity implements OnMakeSelectedList
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		setupNavigationTabs();
-		
 		setupParse();
 	}
 
