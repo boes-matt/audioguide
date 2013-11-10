@@ -110,7 +110,7 @@ public class DiscoverFragment extends SupportMapFragment implements
 		
 		for (Track track : tracks) {
 			Marker marker = mGoogleMap.addMarker(new MarkerOptions()
-					.position(track.getLatLng()).title(track.getTitle())
+					.position(track.getLocation()).title(track.getTitle())
 					.snippet(track.getDescription())
 					.icon(bd));
 			mMarkerTracks.put(marker.getId(), track);
