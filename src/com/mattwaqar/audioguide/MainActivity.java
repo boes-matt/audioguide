@@ -18,7 +18,8 @@ import com.mattwaqar.audioguide.models.Track;
 public class MainActivity extends FragmentActivity implements OnMakeSelectedListener {
 
 	private static final int REQUEST_RECORD = 0;
-
+	private static final int REQUEST_UPDATE = 1;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -57,23 +58,35 @@ public class MainActivity extends FragmentActivity implements OnMakeSelectedList
 	public void onRecord(MenuItem item) {
 		Intent i = new Intent(this, RecordActivity.class);
 		startActivityForResult(i, REQUEST_RECORD);
+		overridePendingTransition(R.anim.right_in, R.anim.left_out);
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK) {
 			if (requestCode == REQUEST_RECORD) {
-				// TODO Get new track if not null.  Add to mTracks and marker to map.
-				Track track = (Track) data.getSerializableExtra("Track");
-				DiscoverFragment fragment = (DiscoverFragment) getSupportFragmentManager().findFragmentByTag("DiscoverFragment");
-				fragment.addTrack(track);
+				// Update occurs in fragment onResume 
+				return;
+			}
+			
+			if (requestCode == REQUEST_UPDATE) {
+				// Update occurs in fragment onResume
+				return;
 			}
 		}
 	}
 
 	@Override
 	public void onTrackSelected(Track track) {
-		Intent i = new Intent(getApplicationContext(), RecordActivity.class);
-		startActivityForResult(i, 1);
+		Intent i = new Intent(this, RecordActivity.class);
+		i.putExtra(RecordActivity.KEY_TRACK_ID, track.getObjectId());
+		startActivityForResult(i, REQUEST_UPDATE);
+		overridePendingTransition(R.anim.right_in, R.anim.left_out);
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		AudioManager.stopAudio();
 	}
 }

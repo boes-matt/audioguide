@@ -1,9 +1,10 @@
 package com.mattwaqar.audioguide.fragments;
 
 import android.app.Activity;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,11 +12,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.mattwaqar.audioguide.AudioManager;
 import com.mattwaqar.audioguide.R;
+import com.mattwaqar.audioguide.models.Track;
 
 public class MediaFragment extends Fragment implements OnClickListener {
 	
 	private static final String TAG = "MediaFragment";
+	
+	private Track mTrack;
 	
 	private Button btnRecord;
 	private LinearLayout btnBarControls;
@@ -23,8 +28,13 @@ public class MediaFragment extends Fragment implements OnClickListener {
 	private boolean isPlaying;
 	private Button btnDelete;
 	
-	private MediaListener listener;
-		
+	private RecordListener mListener;
+	
+	public interface RecordListener {
+		public void showRecordDialog();
+		public String getLocalAudioPath();
+	}
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_media, container, false);
@@ -39,61 +49,37 @@ public class MediaFragment extends Fragment implements OnClickListener {
 		btnDelete.setOnClickListener(this);
 		
 		isPlaying = false;		
-		showRecord();
+		if (mTrack.getAudioFile() == null) showRecord();
+		else showPlayDelete();
 		
 		return v;
+	}
+	
+	// Must call after instantiating class
+	public void setTrack(Track track) {
+		mTrack = track;
 	}
 	
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		
-		if (activity instanceof MediaListener) {
-			listener = (MediaListener) activity;
-		} else {
-			throw new ClassCastException(activity.toString() + " must implement MediaListener");
-		}		
+	    if (activity instanceof RecordListener) {
+	        mListener = (RecordListener) activity;
+	    } else {
+	    	throw new ClassCastException(activity.toString() + " must implement MediaFragment.RecordListener");
+	    }	
 	}
 	
 	private void showRecord() {
 		btnRecord.setVisibility(View.VISIBLE);
 		btnBarControls.setVisibility(View.GONE);		
 	}
-	
+
 	private void showPlayDelete() {
 		btnRecord.setVisibility(View.GONE);
 		btnBarControls.setVisibility(View.VISIBLE);		
 	}
 	
-	public void onRecord() {
-		// Record audio
-		showRecordDialog();
-		showPlayDelete();
-	}
-	
-	private void showRecordDialog() {
-		FragmentManager fm = getActivity().getSupportFragmentManager();
-		RecordDialog dialog = new RecordDialog();
-		dialog.show(fm, "fragment_record_audio");
-	}
-	
-	public void onPlayStop() {
-		if (!isPlaying) {
-			listener.playAudio();
-			btnPlayStop.setText("Stop");
-			isPlaying = true;
-		} else {
-			listener.stopAudio();
-			btnPlayStop.setText("Play");
-			isPlaying = false;
-		}
-	}
-	
-	public void onDelete() {
-		listener.deleteAudio();
-		showRecord();
-	}
-
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()) {
@@ -108,4 +94,39 @@ public class MediaFragment extends Fragment implements OnClickListener {
 				break;
 		}
 	}
+		
+	public void onRecord() {
+		mListener.showRecordDialog();
+		showPlayDelete();
+	}
+	
+	public void onPlayStop() {
+		if (!isPlaying) {
+			String audioPath = mListener.getLocalAudioPath();
+			if (mTrack.getAudioFile() != null) {
+				audioPath = mTrack.getAudioFile().getUrl();
+			}
+			
+			AudioManager.playAudio(audioPath, new OnCompletionListener() {
+				
+				@Override
+				public void onCompletion(MediaPlayer mp) {
+					onPlayStop();
+				}
+				
+			});
+			btnPlayStop.setText("Stop");
+			isPlaying = true;
+		} else {
+			AudioManager.stopAudio();
+			btnPlayStop.setText("Play");
+			isPlaying = false;
+		}
+	}
+	
+	public void onDelete() {
+		mTrack.remove(Track.AUDIO);
+		showRecord();
+	}
+	
 }

@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:hint="@string/title" >
+        android:hint="@string/title"
+        android:inputType="textCapWords" >
 
         <requestFocus />
     </EditText>
@@ -24,33 +25,31 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/etTitle"
         android:layout_marginTop="10dp"
-        android:hint="@string/description" />
+        android:hint="@string/description"
+        android:inputType="textCapSentences" />
 
-    <fragment
-        android:id="@+id/mcRecordPlay"
+    <FrameLayout
+        android:id="@+id/mediaFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/etDescription"
-        android:layout_marginTop="10dp"
-        class="com.mattwaqar.audioguide.fragments.MediaFragment"
-        tools:layout="@layout/fragment_media" />
+        android:layout_marginTop="10dp" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/mcRecordPlay"
+        android:layout_below="@+id/mediaFragment"
         android:layout_marginTop="10dp" >
 
-        <fragment
-            android:id="@+id/mapView"
+        <FrameLayout
+            android:id="@+id/setLocationFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            class="com.mattwaqar.audioguide.fragments.SetLocationFragment" />
-
+            android:layout_alignParentTop="true" />
+        
         <ImageView
             android:id="@+id/ivTrackPin"
             android:layout_width="wrap_content"

@@ -1,107 +1,75 @@
 package com.mattwaqar.audioguide.models;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.FindCallback;
+import com.parse.ParseClassName;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
-public class Track implements Serializable {
+@ParseClassName("Track")
+public class Track extends ParseObject {
 
 	/*
-	 * A track is an audio track, location, and meta-data.
+	 * A track is an audio track, GPS location, and meta-data.
 	 */
+	
+	public static final String TAG = "Track";
 
-	private String title;
-	private String description;
-	private String author;
+	public static final String TITLE = "title";
+	public static final String DESCRIPTION = "description";
+	public static final String AUDIO = "audio";	
+	public static final String LATITUDE = "latitude";
+	public static final String LONGITUDE = "longitude";
 	
-	private int audioResource;
-	private String audioPath;
-	
-	//private LatLng latLng;
-	private double lat;
-	private double lng;
+	public Track() {
 		
-	public Track(String title, String description, String author, int audioResource, LatLng latLng) {
-		this.title = title;
-		this.description = description;
-		this.author = author;
-		this.audioResource = audioResource;
-		//this.latLng = latLng;
-		this.lat = latLng.latitude;
-		this.lng = latLng.longitude;
 	}
-
-	public Track(String title, String description, String author, String audioPath, LatLng latLng) {
-		this.title = title;
-		this.description = description;
-		this.author = author;
-		this.audioPath = audioPath;
-		//this.latLng = latLng;
-		this.lat = latLng.latitude;
-		this.lng = latLng.longitude;
-	}	
-	
-	/*
-	public static String getPathFromResource(int resource) {
-		// TODO: Does not work
-		return Uri.parse("android.resource://" + "com.mattwaqar.audioguide/" + resource).toString();
-	}
-	*/
 	
 	public String getTitle() {
-		return title;
+		return getString(TITLE);
 	}
 
 	public void setTitle(String title) {
-		this.title = title;
+		put(TITLE, title);
 	}
-
+	
 	public String getDescription() {
-		return description;
+		return getString(DESCRIPTION);
 	}
 
 	public void setDescription(String description) {
-		this.description = description;
+		put(DESCRIPTION, description);
+	}
+	
+	public ParseFile getAudioFile() {
+		return getParseFile(AUDIO);
 	}
 
-	public String getAuthor() {
-		return author;
+	public void setAudioFile(ParseFile file) {
+		put(AUDIO, file);
 	}
-
-	public void setAuthor(String author) {
-		this.author = author;
-	}
-
-	public int getAudioResource() {
-		return audioResource;
-	}
-
-	public void setAudioPath(String audioPath) {
-		this.audioPath = audioPath;
-	}
-
-	public String getAudioPath() {
-		return audioPath;
-	}
-
-	public void setAudioResource(int audioResource) {
-		this.audioResource = audioResource;
-	}	
 	
 	public LatLng getLatLng() {
-		//return latLng;
-		return new LatLng(lat, lng);
-	}
-
-	public void setLatLng(LatLng latLng) {
-		//this.latLng = latLng;
-		lat = latLng.latitude;
-		lng = latLng.longitude;
+		double lat = getDouble(LATITUDE);
+		double lng = getDouble(LONGITUDE);
+		if (lat == 0 || lng == 0) return null;
+		else return new LatLng(lat, lng);
 	}
 	
-	@Override
-	public String toString() {
-		return title;
+	public void setLatLng(LatLng latLng) {
+		put(LATITUDE, latLng.latitude);
+		put(LONGITUDE, latLng.longitude);
 	}
-
+	
+	public static ArrayList<Track> getTracks() {
+		
+		return null;
+	}
 }

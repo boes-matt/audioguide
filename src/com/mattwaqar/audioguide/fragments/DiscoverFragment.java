@@ -1,17 +1,15 @@
 package com.mattwaqar.audioguide.fragments;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import android.location.Location;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -26,8 +24,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.mattwaqar.audioguide.AudioManager;
 import com.mattwaqar.audioguide.R;
 import com.mattwaqar.audioguide.models.Track;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseQuery.CachePolicy;
 
 public class DiscoverFragment extends SupportMapFragment implements
 		GooglePlayServicesClient.ConnectionCallbacks,
@@ -37,38 +41,17 @@ public class DiscoverFragment extends SupportMapFragment implements
 	
 	private GoogleMap mGoogleMap;
 	private LocationClient mLocationClient;
+	private BitmapDescriptor markerIcon;
 	private Location mCurrentLocation;
-	private ArrayList<Track> mTracks;
-	private MediaPlayer mPlayer;
 	private HashMap<String, Track> mMarkerTracks;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mLocationClient = new LocationClient(getActivity(), this, this);
-		setupMockTracks();
+		markerIcon = BitmapDescriptorFactory.fromResource(R.drawable.ic_listen_track);
 	}
-
-	private void setupMockTracks() {
-		Track barberShop = new Track("Barber shop", "Singing barbers",
-				"Matt Boes", R.raw.sf_barber_shop,
-				new LatLng(37.7749, -122.419));		
-		Track bayShore = new Track("Dock of the Bay", "Sitting on bay shore",
-				"Matt Boes", R.raw.sf_bayshore, new LatLng(37.7549, -122.390));
-		Track pacmanArcade = new Track("Pacman Arcade",
-				"Along the Embarcadero", "Waqar Malik", R.raw.sf_pacman_arcade,
-				new LatLng(37.7949, -122.400));
-		Track queenMary = new Track("Queen Mary Ferry", "All aboard!",
-				"Waqar Malik", R.raw.sf_queen_mary, new LatLng(37.8049,
-						-122.419));
-
-		mTracks = new ArrayList<Track>();
-		mTracks.add(barberShop);
-		mTracks.add(bayShore);
-		mTracks.add(pacmanArcade);
-		mTracks.add(queenMary);
-	}
-
+	
 	@Override
 	public void onStart() {
 		super.onStart();	
@@ -82,49 +65,57 @@ public class DiscoverFragment extends SupportMapFragment implements
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-
-		/*
-		 * TODO: Fix with better solution than current null checking. 
-		 * onCreatView called twice: when activity loads and when tab is selected.  Why?
-		 * This causes mMarkerTracks to be reset with new markers, resulting in
-		 * out-of-sync click handlers for markers and null pointers.
-		 */
-
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View v = super.onCreateView(inflater, container, savedInstanceState);
 
 		mGoogleMap = getMap();
 		mGoogleMap.setMyLocationEnabled(true);
-		if (mMarkerTracks == null) {
-			addTracksToMap(mTracks);
-			setupOnClickHandlers();			
-		}
 		
 		return v;
 	}
-
-	private void addTracksToMap(ArrayList<Track> tracks) {
-		mMarkerTracks = new HashMap<String, Track>();
-		BitmapDescriptor bd = BitmapDescriptorFactory.fromResource(R.drawable.ic_listen_track);
-		
-		for (Track track : tracks) {
-			Marker marker = mGoogleMap.addMarker(new MarkerOptions()
-					.position(track.getLatLng()).title(track.getTitle())
-					.snippet(track.getDescription())
-					.icon(bd));
-			mMarkerTracks.put(marker.getId(), track);
-		}
-		
-		Log.d(TAG, "mMarkerTracks created: " + mMarkerTracks);
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		updateMapTracks();		
 	}
 
-	private void setupOnClickHandlers() {
+	public void updateMapTracks() {
+		ParseQuery<ParseObject> query = ParseQuery.getQuery(Track.TAG);
+		query.setCachePolicy(CachePolicy.NETWORK_ONLY);
+		query.findInBackground(new FindCallback<ParseObject>() {
+
+			@Override
+			public void done(List<ParseObject> tracks, ParseException e) {
+				if (e != null) {
+					Log.e(TAG, "Error retrieving list of tracks", e);
+				} else {
+					mGoogleMap.clear();	
+					mMarkerTracks = new HashMap<String, Track>();
+										
+					for (ParseObject object : tracks) {
+						Track track = (Track) object;
+						Marker marker = mGoogleMap.addMarker(new MarkerOptions()
+								.position(track.getLatLng()).title(track.getTitle())
+								.snippet(track.getDescription())
+								.icon(markerIcon));
+						mMarkerTracks.put(marker.getId(), track);
+					}
+					
+					setupMarkerOnClickHandlers();			
+				}
+			}
+			
+		});
+		
+	}
+
+	private void setupMarkerOnClickHandlers() {
 		mGoogleMap.setOnMapClickListener(new OnMapClickListener() {
 
 			@Override
 			public void onMapClick(LatLng latLng) {
-				stopAudio();
+				AudioManager.stopAudio();
 			}
 
 		});
@@ -132,74 +123,18 @@ public class DiscoverFragment extends SupportMapFragment implements
 		mGoogleMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
 
 			@Override
-			public void onInfoWindowClick(Marker marker) {
-				Log.d(TAG, "Marker ID tapped: " + marker.getId());
-				Log.d(TAG, "mMarkerTracks: " + mMarkerTracks);
-								
-				stopAudio();
+			public void onInfoWindowClick(Marker marker) {								
+				AudioManager.stopAudio();
 				Track track = mMarkerTracks.get(marker.getId());
-				if (track != null) {
-					playAudio(track);
-				} else {
-					Log.e(TAG, "Track is null for marker");
-				}
+				AudioManager.playAudio(track.getAudioFile().getUrl(), null);
 			}
 
 		});
 	}
 
-	private void playAudio(Track track) {
-		if (track.getAudioPath() != null && mPlayer == null) {
-			// Play from filepath
-			mPlayer = new MediaPlayer();
-			try {
-				mPlayer.setDataSource(track.getAudioPath());
-				mPlayer.setOnCompletionListener(new OnCompletionListener() {
-					
-					@Override
-					public void onCompletion(MediaPlayer mp) {
-						stopAudio();
-					}
-				});
-				
-				mPlayer.prepare();
-			} catch (IOException e) {
-				Log.e(TAG, "prepare() failed", e);
-			}
-			
-		} else if (mPlayer == null) {
-			// Play from resource
-			mPlayer = MediaPlayer.create(getActivity(), track.getAudioResource());
-			mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-
-				@Override
-				public void onCompletion(MediaPlayer mp) {
-					stopAudio();
-				}
-
-			});
-		}
-		
-		mPlayer.start();
-	}
-
-	private void stopAudio() {
-		if (mPlayer != null) {
-			mPlayer.release();
-			mPlayer = null;
-		}
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		
-	}
-
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
-		// TODO Auto-generated method stub
-		
+		Toast.makeText(getActivity(), "Failed connection to Google Maps service", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -213,14 +148,7 @@ public class DiscoverFragment extends SupportMapFragment implements
 
 	@Override
 	public void onDisconnected() {
-		// TODO Auto-generated method stub
-
+		Toast.makeText(getActivity(), "Disconnected to Google Maps service", Toast.LENGTH_SHORT).show();
 	}
-
-	public void addTrack(Track track) {
-		mTracks.add(track);
-		addTracksToMap(mTracks);
-		setupOnClickHandlers();		
-	}
-
+	
 }

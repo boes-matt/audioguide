@@ -1,12 +1,8 @@
 package com.mattwaqar.audioguide.fragments;
 
 import java.io.IOException;
-import java.util.Date;
 
-import android.app.Activity;
-import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,20 +10,35 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.mattwaqar.audioguide.AudioManager;
 import com.mattwaqar.audioguide.R;
+import com.mattwaqar.audioguide.models.Track;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.SaveCallback;
 
 public class RecordDialog extends DialogFragment {
 	
 	private static final String TAG = "RecordDialog";
 	
+	private Track mTrack;
+	private String mAudioPath;
 	private Button btnDone;
-	private MediaRecorder mRecorder;
-	private String mFilename;
 	
-	private MediaListener listener;
-		
 	public RecordDialog() {
 		
+	}
+	
+	// Must call after instantiating class
+	public void setupDialog(Track track, String audioPath) {
+		mTrack = track;
+		mAudioPath = audioPath;
+	}
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		AudioManager.startRecording(mAudioPath);
 	}
 	
 	@Override
@@ -40,56 +51,29 @@ public class RecordDialog extends DialogFragment {
 			
 			@Override
 			public void onClick(View v) {
-				stopRecording();
-				listener.setAudio(mFilename);
+				AudioManager.stopRecording();
+				
+				try {
+					final ParseFile file = new ParseFile("audiotrack.3gp", AudioManager.getAudioBytes(mAudioPath));
+					file.saveInBackground(new SaveCallback() {
+
+						@Override
+						public void done(ParseException e) {
+							if (e != null) Log.e(TAG, "Error saving audio file to server", e);
+							else mTrack.setAudioFile(file);
+						}
+						
+					});
+				} catch (IOException e) {
+					Log.e(TAG, "Error converting audio file to bytes", e);
+				}
+				
 				dismiss();
 			}
 			
 		});
 
 		return v;
-	}
-
-	private void startRecording() {
-		Log.d(TAG, "mFilename: " + mFilename);
-		
-		mRecorder = new MediaRecorder();
-		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-		mRecorder.setOutputFile(mFilename);
-		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-		
-		try {
-			mRecorder.prepare();
-		} catch (IOException e) {
-			Log.e(TAG, "prepare() failed", e);
-		}
-		
-		mRecorder.start();
-	}
-	
-	private void stopRecording() {
-		mRecorder.stop();
-		mRecorder.release();
-		mRecorder = null;
-	}
-	
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		
-		if (activity instanceof MediaListener) {
-			listener = (MediaListener) activity;
-		} else {
-			throw new ClassCastException(activity.toString() + " must implement MediaListener");
-		}
-		
-		// Filename set to current timestamp
-		Date d = new Date();				
-		mFilename = getActivity().getExternalFilesDir(Environment.DIRECTORY_PODCASTS).toString();
-		mFilename += "/" + String.valueOf(d.getTime());
-		
-		startRecording();
 	}
 	
 }

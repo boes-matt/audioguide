@@ -8,7 +8,7 @@
         android:minSdkVersion="11"
         android:targetSdkVersion="18" />
 
-    <!-- Need for Maps and GPS -->
+    <!-- Need for Maps and GPS and Parse -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -26,13 +26,16 @@
         android:required="true" />
 
     <application
+        android:name=".AudioGuideApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+                
         <activity
             android:name="com.mattwaqar.audioguide.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -42,12 +45,14 @@
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyBBSLeuvYSn3rAy6wlovA5aR5WNoRj_l0c" />
+            android:value="AIzaSyAD_A0CYVRanYarQ53jLjtB74GOUR8tXCY" />
 
         <activity
             android:name="com.mattwaqar.audioguide.RecordActivity"
-            android:label="@string/title_activity_record" >
+            android:label="@string/title_activity_record"
+            android:screenOrientation="portrait" >
         </activity>
+    
     </application>
 
 </manifest>

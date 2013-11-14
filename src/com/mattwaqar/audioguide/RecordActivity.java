@@ -1,105 +1,137 @@
 package com.mattwaqar.audioguide;
 
-import java.io.File;
-import java.io.IOException;
-
 import android.app.Activity;
-import android.content.Intent;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.EditText;
+import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.mattwaqar.audioguide.fragments.MediaFragment;
-import com.mattwaqar.audioguide.fragments.MediaListener;
+import com.mattwaqar.audioguide.fragments.MediaFragment.RecordListener;
+import com.mattwaqar.audioguide.fragments.RecordDialog;
 import com.mattwaqar.audioguide.fragments.SetLocationFragment;
 import com.mattwaqar.audioguide.models.Track;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
-public class RecordActivity extends FragmentActivity implements MediaListener {
+public class RecordActivity extends FragmentActivity implements RecordListener {
 
-	private static final String TAG = "RecordActivity";
-	
+	public static final String TAG = "RecordActivity";
+	public static final String KEY_TRACK_ID = "track_id";
+
 	private EditText etTitle;
 	private EditText etDescription;
-	private String mTrackPath;
-	private LatLng mLatLng;
-	
-	private MediaPlayer mPlayer;
-	
+
+	private MediaFragment mMediaFragment;
+	private SetLocationFragment mSetLocationFragment;	
+
+	private String TEMP_AUDIO_PATH;
+	private Track mTrack;
+		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_record);
-
 		etTitle = (EditText) findViewById(R.id.etTitle);
 		etDescription = (EditText) findViewById(R.id.etDescription);
+		TEMP_AUDIO_PATH = getExternalFilesDir(Environment.DIRECTORY_PODCASTS).toString() + "/audiotrack.3gp";
+		loadTrack();
+	}
+	
+	private void loadTrack() {
+		String trackId = getIntent().getStringExtra(KEY_TRACK_ID);
+		if (trackId == null) {
+			mTrack = new Track();
+			loadFragments();
+		} else {
+			ParseQuery<ParseObject> query = ParseQuery.getQuery(Track.TAG);
+			query.setCachePolicy(ParseQuery.CachePolicy.NETWORK_ONLY);
+			query.getInBackground(trackId, new GetCallback<ParseObject>() {
+
+				@Override
+				public void done(ParseObject track, ParseException e) {
+					if (e == null) {
+						mTrack = (Track) track;
+						etTitle.setText(mTrack.getTitle());
+						etDescription.setText(mTrack.getDescription());
+					} else {
+						Log.e(TAG, "Error retrieving track", e);
+						mTrack = new Track();
+					}
+					loadFragments();
+				}
+				
+			});
+		}		
 	}
 
+	private void loadFragments() {
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		
+		mMediaFragment = new MediaFragment();
+		mMediaFragment.setTrack(mTrack);
+		ft.replace(R.id.mediaFragment, mMediaFragment);
+		
+		mSetLocationFragment = new SetLocationFragment();
+		mSetLocationFragment.setTrackLocation(mTrack);
+		ft.replace(R.id.setLocationFragment, mSetLocationFragment);
+		
+		ft.commit();
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.record, menu);
 		return true;
 	}
-
+	
+	@Override
+	public void showRecordDialog() {
+		RecordDialog dialog = new RecordDialog();
+		dialog.setupDialog(mTrack, TEMP_AUDIO_PATH);
+		dialog.show(getSupportFragmentManager(), "fragment_record_audio");
+	}
+	
+	@Override
+	public String getLocalAudioPath() {
+		return TEMP_AUDIO_PATH;
+	}
+	
 	@Override
 	public void onBackPressed() {
-		String title = etTitle.getText().toString();
-		String description = etDescription.getText().toString();
-		String author = "Matt Waqar";
-
-		SetLocationFragment fragment = (SetLocationFragment) getSupportFragmentManager().findFragmentById(R.id.mapView);
-		mLatLng = fragment.getTrackLatLng();
+		mTrack.setTitle(etTitle.getText().toString());
+		mTrack.setDescription(etDescription.getText().toString());
+		mTrack.setLatLng(mSetLocationFragment.getTrackLocation());
 		
-		Track track = new Track(title, description, author, mTrackPath, mLatLng);
-		Intent i = new Intent();
-		i.putExtra("Track", track);
-		setResult(Activity.RESULT_OK, i);
+		String EMPTY = "";
+		
+		if (!mTrack.getTitle().equals(EMPTY) && 
+			!mTrack.getDescription().equals(EMPTY) && 
+			mTrack.getAudioFile() != null) {
+			
+			Log.d(TAG, "Track is: " + mTrack.getObjectId() + ", " + mTrack.getTitle() + ", " + mTrack.getDescription());
+			
+			mTrack.saveInBackground();
+			Toast.makeText(this, "Saving track", Toast.LENGTH_SHORT).show();
+			setResult(Activity.RESULT_OK);			
+		} else {
+			Toast.makeText(this, "Track not saved", Toast.LENGTH_SHORT).show();
+			setResult(Activity.RESULT_CANCELED);							
+		}
 		
 		super.onBackPressed();
 	}
-
+	
 	@Override
-	public void setAudio(String trackPath) {
-		mTrackPath = trackPath;
-	}
-
-	@Override
-	public void deleteAudio() {
-		File audio = new File(mTrackPath);
-		audio.delete();
-		mTrackPath = null;
-	}
-
-	@Override
-	public void playAudio() {
-		mPlayer = new MediaPlayer();
-		try {
-			mPlayer.setDataSource(mTrackPath);
-			mPlayer.setOnCompletionListener(new OnCompletionListener() {
-				
-				@Override
-				public void onCompletion(MediaPlayer mp) {
-					MediaFragment fragment = (MediaFragment) getSupportFragmentManager().findFragmentById(R.id.mcRecordPlay);
-					fragment.onPlayStop();
-				}
-			});
-			
-			mPlayer.prepare();
-			mPlayer.start();
-		} catch (IOException e) {
-			Log.e(TAG, "prepare() failed", e);
-		}
-	}
-
-	@Override
-	public void stopAudio() {
-		mPlayer.release();
-		mPlayer = null;
+	protected void onPause() {
+		super.onPause();
+		AudioManager.stopAudio();
 	}
 		
 }

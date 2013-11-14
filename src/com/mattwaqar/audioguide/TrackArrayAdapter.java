@@ -28,7 +28,7 @@ public class TrackArrayAdapter extends ArrayAdapter<Track> {
 		
 		TextView tvTitle = (TextView) view.findViewById(R.id.tvTitle);
 		tvTitle.setText(track.getTitle());
-		TextView tvSubtitle = (TextView)view.findViewById(R.id.tvSubtitle);
+		TextView tvSubtitle = (TextView)view.findViewById(R.id.tvDescription);
 		tvSubtitle.setText(track.getDescription());
 		return view;
 	}
