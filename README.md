@@ -5,7 +5,7 @@ Guide in progress...
 
 Audio Guide is a tool to experience and create audio tracks linked to GPS points of interest.
 
-Dicover Tab
+Discover Tab
 ===========
 ![Discover tab](https://www.dropbox.com/s/uxvu4rmylryeyl2/2013-11-11%2023.03.16.png?dl=1 "Discover tab")
 
