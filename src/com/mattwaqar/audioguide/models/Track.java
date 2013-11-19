@@ -1,17 +1,9 @@
 package com.mattwaqar.audioguide.models;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import android.util.Log;
-
 import com.google.android.gms.maps.model.LatLng;
-import com.parse.FindCallback;
 import com.parse.ParseClassName;
-import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 @ParseClassName("Track")
 public class Track extends ParseObject {
@@ -68,8 +60,4 @@ public class Track extends ParseObject {
 		put(LONGITUDE, latLng.longitude);
 	}
 	
-	public static ArrayList<Track> getTracks() {
-		
-		return null;
-	}
 }

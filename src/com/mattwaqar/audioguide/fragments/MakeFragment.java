@@ -26,7 +26,6 @@ import com.parse.ParseQuery.CachePolicy;
 
 public class MakeFragment extends Fragment {
 	
-	
 	private static final String TAG = "MakeFragment";
 	
 	private TrackArrayAdapter mAdapter;
