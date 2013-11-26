@@ -79,7 +79,7 @@ public class MainActivity extends FragmentActivity implements OnMakeSelectedList
 	@Override
 	public void onTrackSelected(Track track) {
 		Intent i = new Intent(this, RecordActivity.class);
-		i.putExtra(RecordActivity.KEY_TRACK_ID, track.getObjectId());
+		i.putExtra(RecordActivity.KEY_TRACK_ID, track.getId());
 		startActivityForResult(i, REQUEST_UPDATE);
 		overridePendingTransition(R.anim.right_in, R.anim.left_out);
 	}

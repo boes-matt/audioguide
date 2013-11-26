@@ -10,21 +10,23 @@ import android.view.Menu;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.mattwaqar.audioguide.client.Client;
+import com.mattwaqar.audioguide.client.ItemCallback;
+import com.mattwaqar.audioguide.client.ParseClient;
 import com.mattwaqar.audioguide.fragments.MediaFragment;
 import com.mattwaqar.audioguide.fragments.MediaFragment.RecordListener;
 import com.mattwaqar.audioguide.fragments.RecordDialog;
 import com.mattwaqar.audioguide.fragments.SetLocationFragment;
+import com.mattwaqar.audioguide.models.ParseTrack;
 import com.mattwaqar.audioguide.models.Track;
-import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 public class RecordActivity extends FragmentActivity implements RecordListener {
 
 	public static final String TAG = "RecordActivity";
 	public static final String KEY_TRACK_ID = "track_id";
 
+	private Client mClient;
+	
 	private EditText etTitle;
 	private EditText etDescription;
 
@@ -38,6 +40,7 @@ public class RecordActivity extends FragmentActivity implements RecordListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_record);
+		mClient = ParseClient.getInstance(this);
 		etTitle = (EditText) findViewById(R.id.etTitle);
 		etDescription = (EditText) findViewById(R.id.etDescription);
 		TEMP_AUDIO_PATH = getExternalFilesDir(Environment.DIRECTORY_PODCASTS).toString() + "/audiotrack.3gp";
@@ -47,28 +50,28 @@ public class RecordActivity extends FragmentActivity implements RecordListener {
 	private void loadTrack() {
 		String trackId = getIntent().getStringExtra(KEY_TRACK_ID);
 		if (trackId == null) {
-			mTrack = new Track();
+			mTrack = new ParseTrack();
 			loadFragments();
 		} else {
-			ParseQuery<ParseObject> query = ParseQuery.getQuery(Track.TAG);
-			query.setCachePolicy(ParseQuery.CachePolicy.NETWORK_ONLY);
-			query.getInBackground(trackId, new GetCallback<ParseObject>() {
+			mClient.getTrack(trackId, new ItemCallback<Track>() {
+				
+				@Override
+				public void onSuccess(Track track) {																																	
+					mTrack = track;
+					etTitle.setText(mTrack.getTitle());
+					etDescription.setText(mTrack.getDescription());						
+					loadFragments();
+				}
 
 				@Override
-				public void done(ParseObject track, ParseException e) {
-					if (e == null) {
-						mTrack = (Track) track;
-						etTitle.setText(mTrack.getTitle());
-						etDescription.setText(mTrack.getDescription());
-					} else {
-						Log.e(TAG, "Error retrieving track", e);
-						mTrack = new Track();
-					}
+				public void onFailure(Exception e) {
+					Log.e(TAG, "Error retrieving track", e);
+					mTrack = new ParseTrack();
 					loadFragments();
 				}
 				
-			});
-		}		
+			});		
+		}
 	}
 
 	private void loadFragments() {
@@ -113,9 +116,9 @@ public class RecordActivity extends FragmentActivity implements RecordListener {
 		
 		if (!mTrack.getTitle().equals(EMPTY) && 
 			!mTrack.getDescription().equals(EMPTY) && 
-			mTrack.getAudioFile() != null) {
+			mTrack.getAudioUri() != null) {
 			
-			Log.d(TAG, "Track is: " + mTrack.getObjectId() + ", " + mTrack.getTitle() + ", " + mTrack.getDescription());
+			Log.d(TAG, "Track is: " + mTrack.getId() + ", " + mTrack.getTitle() + ", " + mTrack.getDescription());
 			
 			mTrack.saveInBackground();
 			Toast.makeText(this, "Saving track", Toast.LENGTH_SHORT).show();

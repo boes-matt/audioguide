@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaRecorder;
 import android.util.Log;
 
@@ -21,7 +23,17 @@ public class AudioManager {
 			sPlayer = new MediaPlayer();
 		
 		try {
-			sPlayer.setDataSource(audioPath);
+			sPlayer.setDataSource(audioPath);	
+			sPlayer.setAudioStreamType(android.media.AudioManager.STREAM_MUSIC);
+			sPlayer.setOnBufferingUpdateListener(new OnBufferingUpdateListener() {
+				
+				@Override
+				public void onBufferingUpdate(MediaPlayer mp, int percent) {
+					// TODO FIX: Parse needs to set audio byte size in header?
+					Log.d(TAG, "Percent buffered: " + percent);
+				}
+				
+			});
 			
 			
 			if (listener == null) {
@@ -37,12 +49,19 @@ public class AudioManager {
 			// If not null, passed listener should call stopAudio(), and if necessary, update UI in activity or fragment.
 			sPlayer.setOnCompletionListener(listener);
 			
-			sPlayer.prepare();
+			sPlayer.setOnPreparedListener(new OnPreparedListener() {
+				
+				@Override
+				public void onPrepared(MediaPlayer mp) {
+					mp.start();
+				}
+				
+			});
+			
+			sPlayer.prepareAsync();
 		} catch (IOException e) {
 			Log.e(TAG, "prepare() failed", e);
 		}
-
-		sPlayer.start();
 	}
 	
 	public static void stopAudio() {

@@ -17,23 +17,28 @@ import android.widget.ListView;
 
 import com.mattwaqar.audioguide.R;
 import com.mattwaqar.audioguide.TrackArrayAdapter;
+import com.mattwaqar.audioguide.client.Client;
+import com.mattwaqar.audioguide.client.ItemsCallback;
+import com.mattwaqar.audioguide.client.ParseClient;
 import com.mattwaqar.audioguide.models.Track;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseQuery.CachePolicy;
 
 public class MakeFragment extends Fragment {
 	
 	private static final String TAG = "MakeFragment";
 	
+	private Client mClient;
 	private TrackArrayAdapter mAdapter;
 	private ListView lvTracks;
 	private OnMakeSelectedListener mMakeListener;
 
 	public interface OnMakeSelectedListener {
 		public void onTrackSelected(Track track);
+	}
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		mClient = ParseClient.getInstance(getActivity());
 	}
 
 	@Override
@@ -59,7 +64,6 @@ public class MakeFragment extends Fragment {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 				Track track = mAdapter.getItem(position);
-				track.remove(Track.AUDIO);
 				track.deleteInBackground();
 				mAdapter.remove(track);
 				return true;
@@ -77,23 +81,20 @@ public class MakeFragment extends Fragment {
 	}
 	
 	public void updateAdapter() {
-		ParseQuery<ParseObject> query = ParseQuery.getQuery(Track.TAG);
-		query.orderByDescending("createdAt");
-		query.setCachePolicy(CachePolicy.NETWORK_ONLY);
-		query.findInBackground(new FindCallback<ParseObject>() {
+		mClient.getTracks(new ItemsCallback<Track>() {
+			
+			@Override
+			public void onSuccess(List<Track> tracks) {
+				mAdapter.clear();
+				mAdapter.addAll(tracks);
+			}
 
 			@Override
-			public void done(List<ParseObject> tracks, ParseException e) {
-				if (e != null) {
-					Log.e(TAG, "Error retrieving list of tracks", e);
-				} else {
-					mAdapter.clear();
-					for (ParseObject object : tracks)
-						mAdapter.add((Track) object);
-				}
+			public void onFailure(Exception e) {
+				Log.e(TAG, "Error retrieving list of tracks", e);				
 			}
 			
-		});
+		});			
 	}
 	
 	@Override

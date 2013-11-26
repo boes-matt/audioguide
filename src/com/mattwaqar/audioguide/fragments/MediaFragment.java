@@ -49,7 +49,7 @@ public class MediaFragment extends Fragment implements OnClickListener {
 		btnDelete.setOnClickListener(this);
 		
 		isPlaying = false;		
-		if (mTrack.getAudioFile() == null) showRecord();
+		if (mTrack.getAudioUri() == null) showRecord();
 		else showPlayDelete();
 		
 		return v;
@@ -103,8 +103,9 @@ public class MediaFragment extends Fragment implements OnClickListener {
 	public void onPlayStop() {
 		if (!isPlaying) {
 			String audioPath = mListener.getLocalAudioPath();
-			if (mTrack.getAudioFile() != null) {
-				audioPath = mTrack.getAudioFile().getUrl();
+			String audioUri = mTrack.getAudioUri();
+			if (audioUri != null) {
+				audioPath = audioUri;
 			}
 			
 			AudioManager.playAudio(audioPath, new OnCompletionListener() {
@@ -125,8 +126,8 @@ public class MediaFragment extends Fragment implements OnClickListener {
 	}
 	
 	public void onDelete() {
-		mTrack.remove(Track.AUDIO);
-		showRecord();
+		mTrack.deleteAudio();
+		showRecord();		
 	}
 	
 }

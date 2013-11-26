@@ -26,12 +26,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.mattwaqar.audioguide.AudioManager;
 import com.mattwaqar.audioguide.R;
+import com.mattwaqar.audioguide.client.Client;
+import com.mattwaqar.audioguide.client.ItemsCallback;
+import com.mattwaqar.audioguide.client.ParseClient;
 import com.mattwaqar.audioguide.models.Track;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseQuery.CachePolicy;
 
 public class DiscoverFragment extends SupportMapFragment implements
 		GooglePlayServicesClient.ConnectionCallbacks,
@@ -39,6 +37,7 @@ public class DiscoverFragment extends SupportMapFragment implements
 
 	private static final String TAG = "DiscoverFragment";
 	
+	private Client mClient;
 	private GoogleMap mGoogleMap;
 	private LocationClient mLocationClient;
 	private BitmapDescriptor markerIcon;
@@ -48,6 +47,7 @@ public class DiscoverFragment extends SupportMapFragment implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mClient = ParseClient.getInstance(getActivity());
 		mLocationClient = new LocationClient(getActivity(), this, this);
 		markerIcon = BitmapDescriptorFactory.fromResource(R.drawable.ic_listen_track);
 	}
@@ -81,33 +81,30 @@ public class DiscoverFragment extends SupportMapFragment implements
 	}
 
 	public void updateMapTracks() {
-		ParseQuery<ParseObject> query = ParseQuery.getQuery(Track.TAG);
-		query.setCachePolicy(CachePolicy.NETWORK_ONLY);
-		query.findInBackground(new FindCallback<ParseObject>() {
+		mClient.getTracks(new ItemsCallback<Track>() {
 
 			@Override
-			public void done(List<ParseObject> tracks, ParseException e) {
-				if (e != null) {
-					Log.e(TAG, "Error retrieving list of tracks", e);
-				} else {
-					mGoogleMap.clear();	
-					mMarkerTracks = new HashMap<String, Track>();
-										
-					for (ParseObject object : tracks) {
-						Track track = (Track) object;
-						Marker marker = mGoogleMap.addMarker(new MarkerOptions()
-								.position(track.getLatLng()).title(track.getTitle())
-								.snippet(track.getDescription())
-								.icon(markerIcon));
-						mMarkerTracks.put(marker.getId(), track);
-					}
-					
-					setupMarkerOnClickHandlers();			
+			public void onSuccess(List<Track> tracks) {
+				mGoogleMap.clear();	
+				mMarkerTracks = new HashMap<String, Track>();
+				
+				for (Track track : tracks) {
+					Marker marker = mGoogleMap.addMarker(new MarkerOptions()
+						.position(track.getLatLng()).title(track.getTitle())
+						.snippet(track.getDescription())
+						.icon(markerIcon));
+					mMarkerTracks.put(marker.getId(), track);
 				}
+				
+				setupMarkerOnClickHandlers();
+			}
+
+			@Override
+			public void onFailure(Exception e) {
+				Log.e(TAG, "Error retrieving list of tracks", e);				
 			}
 			
-		});
-		
+		});		
 	}
 
 	private void setupMarkerOnClickHandlers() {
@@ -126,7 +123,7 @@ public class DiscoverFragment extends SupportMapFragment implements
 			public void onInfoWindowClick(Marker marker) {								
 				AudioManager.stopAudio();
 				Track track = mMarkerTracks.get(marker.getId());
-				AudioManager.playAudio(track.getAudioFile().getUrl(), null);
+				AudioManager.playAudio(track.getAudioUri(), null);
 			}
 
 		});

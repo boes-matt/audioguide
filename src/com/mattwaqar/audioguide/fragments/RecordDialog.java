@@ -13,9 +13,6 @@ import android.widget.Button;
 import com.mattwaqar.audioguide.AudioManager;
 import com.mattwaqar.audioguide.R;
 import com.mattwaqar.audioguide.models.Track;
-import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.SaveCallback;
 
 public class RecordDialog extends DialogFragment {
 	
@@ -54,16 +51,7 @@ public class RecordDialog extends DialogFragment {
 				AudioManager.stopRecording();
 				
 				try {
-					final ParseFile file = new ParseFile("audiotrack.3gp", AudioManager.getAudioBytes(mAudioPath));
-					file.saveInBackground(new SaveCallback() {
-
-						@Override
-						public void done(ParseException e) {
-							if (e != null) Log.e(TAG, "Error saving audio file to server", e);
-							else mTrack.setAudioFile(file);
-						}
-						
-					});
+					mTrack.saveAudio(AudioManager.getAudioBytes(mAudioPath));
 				} catch (IOException e) {
 					Log.e(TAG, "Error converting audio file to bytes", e);
 				}

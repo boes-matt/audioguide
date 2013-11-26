@@ -13,6 +13,6 @@ public class Guide extends Model {
 	 */
 	
 	List<String> userTags;
-	List<Track> tracks;
+	List<ParseTrack> tracks;
 	
 }
