@@ -1,13 +1,10 @@
 package com.mattwaqar.audioguide.models;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.parse.ParseObject;
 
 public interface Track {
 	
 	public String getId();
-		setParseObject(object);
-	}
 	
 	public String getTitle();
 	public void setTitle(String title);
@@ -23,8 +20,5 @@ public interface Track {
 	public void setLatLng(LatLng latLng);
 	
 	public void saveInBackground();
-		return getTitle();
-	}
-
 	public void deleteInBackground();
 }
