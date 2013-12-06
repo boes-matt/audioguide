@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+	<color name="second_grey">#ff999999</color> 
+	<color name="card_shadow">#8c666666</color>
+
+	<color name="dark_blue">#009ACF</color>
+	<color name="white">#FFFFFF</color>
+	
+	<color name="orange">#CF5300</color>
+	<color name="orange_peel">#FF9900</color>
+	<color name="lemon">#FFFBD0</color>
+	<color name="malibu">#6599FF</color>
+	
+	<color name="color_preloader_start">#FFFFFF</color>
+    <color name="color_preloader_center">#FFFFFF</color>
+    <color name="color_preloader_end">#ff56a9c7</color>
+    <color name="navy">#003366</color>
+    
+    
+	
+</resources>
