@@ -31,15 +31,11 @@ import com.mattwaqar.audioguide.client.ItemsCallback;
 import com.mattwaqar.audioguide.client.ParseClient;
 import com.mattwaqar.audioguide.models.Track;
 
-public class DiscoverFragment extends SupportMapFragment implements
-		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener {
+public class DiscoverFragment extends BaseMapFragment {
 
 	private static final String TAG = "DiscoverFragment";
 	
 	private Client mClient;
-	private GoogleMap mGoogleMap;
-	private LocationClient mLocationClient;
 	private BitmapDescriptor markerIcon;
 	private Location mCurrentLocation;
 	private HashMap<String, Track> mMarkerTracks;
@@ -48,32 +44,9 @@ public class DiscoverFragment extends SupportMapFragment implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mClient = ParseClient.getInstance(getActivity());
-		mLocationClient = new LocationClient(getActivity(), this, this);
 		markerIcon = BitmapDescriptorFactory.fromResource(R.drawable.ic_listen_track);
 	}
-	
-	@Override
-	public void onStart() {
-		super.onStart();	
-		mLocationClient.connect();
-	}
 
-	@Override
-	public void onStop() {
-		super.onStop();
-		mLocationClient.disconnect();
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View v = super.onCreateView(inflater, container, savedInstanceState);
-
-		mGoogleMap = getMap();
-		mGoogleMap.setMyLocationEnabled(true);
-		
-		return v;
-	}
-	
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -85,14 +58,14 @@ public class DiscoverFragment extends SupportMapFragment implements
 
 			@Override
 			public void onSuccess(List<Track> tracks) {
-				mGoogleMap.clear();	
+				getGoogleMap().clear();
 				mMarkerTracks = new HashMap<String, Track>();
 				
 				for (Track track : tracks) {
-					Marker marker = mGoogleMap.addMarker(new MarkerOptions()
-						.position(track.getLatLng()).title(track.getTitle())
-						.snippet(track.getDescription())
-						.icon(markerIcon));
+					Marker marker = getGoogleMap().addMarker(new MarkerOptions()
+                            .position(track.getLatLng()).title(track.getTitle())
+                            .snippet(track.getDescription())
+                            .icon(markerIcon));
 					mMarkerTracks.put(marker.getId(), track);
 				}
 				
@@ -108,44 +81,36 @@ public class DiscoverFragment extends SupportMapFragment implements
 	}
 
 	private void setupMarkerOnClickHandlers() {
-		mGoogleMap.setOnMapClickListener(new OnMapClickListener() {
+		getGoogleMap().setOnMapClickListener(new OnMapClickListener() {
 
-			@Override
-			public void onMapClick(LatLng latLng) {
-				AudioManager.stopAudio();
-			}
+            @Override
+            public void onMapClick(LatLng latLng) {
+                AudioManager.stopAudio();
+            }
 
-		});
+        });
 
-		mGoogleMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
+		getGoogleMap().setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
 
-			@Override
-			public void onInfoWindowClick(Marker marker) {								
-				AudioManager.stopAudio();
-				Track track = mMarkerTracks.get(marker.getId());
-				AudioManager.playAudio(track.getAudioUri(), null);
-			}
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                AudioManager.stopAudio();
+                Track track = mMarkerTracks.get(marker.getId());
+                AudioManager.playAudio(track.getAudioUri(), null);
+            }
 
-		});
-	}
-
-	@Override
-	public void onConnectionFailed(ConnectionResult connectionResult) {
-		Toast.makeText(getActivity(), "Failed connection to Google Maps service", Toast.LENGTH_SHORT).show();
+        });
 	}
 
 	@Override
 	public void onConnected(Bundle dataBundle) {
-		mCurrentLocation = mLocationClient.getLastLocation();
-		if (mCurrentLocation != null) {
+		if (playServicesAvailable())
+            mCurrentLocation = getLocationClient().getLastLocation();
+
+        if (mCurrentLocation != null) {
 			LatLng latLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-			mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+			getGoogleMap().moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
 		}
 	}
 
-	@Override
-	public void onDisconnected() {
-		Toast.makeText(getActivity(), "Disconnected to Google Maps service", Toast.LENGTH_SHORT).show();
-	}
-	
 }
