@@ -9,8 +9,8 @@ public interface Track {
 	public String getTitle();
 	public void setTitle(String title);
 	
-	public String getDescription();
-	public void setDescription(String description);
+	public String getSummary();
+	public void setSummary(String summary);
 	
 	public String getAudioUri();
 	public void saveAudio(byte[] audio);

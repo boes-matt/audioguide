@@ -17,7 +17,7 @@ public class ParseTrack implements Track {
 	public static final String TAG = "Track";
 
 	public static final String TITLE = "title";
-	public static final String DESCRIPTION = "description";
+	public static final String SUMMARY = "description";
 	public static final String AUDIO = "audio";	
 	public static final String LATITUDE = "latitude";
 	public static final String LONGITUDE = "longitude";
@@ -48,13 +48,13 @@ public class ParseTrack implements Track {
 	}
 	
 	@Override
-	public String getDescription() {
-		return mObject.getString(DESCRIPTION);
+	public String getSummary() {
+		return mObject.getString(SUMMARY);
 	}
 	
 	@Override
-	public void setDescription(String description) {
-		mObject.put(DESCRIPTION, description);
+	public void setSummary(String summary) {
+		mObject.put(SUMMARY, summary);
 	}
 	
 	@Override

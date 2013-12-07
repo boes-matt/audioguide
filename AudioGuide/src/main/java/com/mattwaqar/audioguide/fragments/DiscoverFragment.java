@@ -6,19 +6,10 @@ import java.util.List;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -64,7 +55,7 @@ public class DiscoverFragment extends BaseMapFragment {
 				for (Track track : tracks) {
 					Marker marker = getGoogleMap().addMarker(new MarkerOptions()
                             .position(track.getLatLng()).title(track.getTitle())
-                            .snippet(track.getDescription())
+                            .snippet(track.getSummary())
                             .icon(markerIcon));
 					mMarkerTracks.put(marker.getId(), track);
 				}

@@ -59,7 +59,7 @@ public class RecordActivity extends FragmentActivity implements RecordListener {
 				public void onSuccess(Track track) {																																	
 					mTrack = track;
 					etTitle.setText(mTrack.getTitle());
-					etDescription.setText(mTrack.getDescription());						
+					etDescription.setText(mTrack.getSummary());
 					loadFragments();
 				}
 
@@ -109,16 +109,16 @@ public class RecordActivity extends FragmentActivity implements RecordListener {
 	@Override
 	public void onBackPressed() {
 		mTrack.setTitle(etTitle.getText().toString());
-		mTrack.setDescription(etDescription.getText().toString());
+		mTrack.setSummary(etDescription.getText().toString());
 		mTrack.setLatLng(mSetLocationFragment.getTrackLocation());
 		
 		String EMPTY = "";
 		
 		if (!mTrack.getTitle().equals(EMPTY) && 
-			!mTrack.getDescription().equals(EMPTY) && 
+			!mTrack.getSummary().equals(EMPTY) &&
 			mTrack.getAudioUri() != null) {
 			
-			Log.d(TAG, "Track is: " + mTrack.getId() + ", " + mTrack.getTitle() + ", " + mTrack.getDescription());
+			Log.d(TAG, "Track is: " + mTrack.getId() + ", " + mTrack.getTitle() + ", " + mTrack.getSummary());
 			
 			mTrack.saveInBackground();
 			Toast.makeText(this, "Saving track", Toast.LENGTH_SHORT).show();
